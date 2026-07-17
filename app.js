@@ -1200,9 +1200,17 @@ function bindEvents(){
 
   /* Responsive: re-render timeline on resize */
   let resizeTimer;
+  let lastWidth = window.innerWidth;
   window.addEventListener('resize',()=>{
     clearTimeout(resizeTimer);
-    resizeTimer=setTimeout(()=>{ updateMobileMode(); if(state.view==='day') renderTimeline(); },200);
+    resizeTimer=setTimeout(()=>{
+      const currentWidth = window.innerWidth;
+      if (currentWidth !== lastWidth) {
+        lastWidth = currentWidth;
+        updateMobileMode();
+        if(state.view==='day') renderTimeline();
+      }
+    },200);
   });
 }
 
