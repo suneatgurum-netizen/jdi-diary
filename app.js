@@ -131,15 +131,36 @@ function distributeGoalsToWeeks() {
 
   for(const goal of filled) {
     const parsed = parseGoalQuantity(goal.text);
+    let shares = [];
+    const daysInMonth = new Date(state.year, state.month + 1, 0).getDate();
+    const weekDays = weeks.map(w => w.end - w.start + 1);
+
+    if (parsed) {
+      // 1. 일수에 비례하여 기본 수량 배분 (소수점 이하 내림)
+      shares = weekDays.map(days => Math.floor((parsed.num * days) / daysInMonth));
+      
+      // 2. 버림 오차로 인해 남은 잔여 수량 합산
+      const distributedSum = shares.reduce((a, b) => a + b, 0);
+      const remainder = parsed.num - distributedSum;
+      
+      // 3. 잔여량이 있으면 주차가 포함하는 실제 일수가 큰 순서대로 1개씩 추가 분배
+      if (remainder > 0) {
+        const indexedWeeks = weeks.map((w, idx) => ({ idx, days: w.end - w.start + 1 }));
+        indexedWeeks.sort((a, b) => b.days - a.days || a.idx - b.idx);
+        for (let i = 0; i < remainder; i++) {
+          const targetIdx = indexedWeeks[i % indexedWeeks.length].idx;
+          shares[targetIdx]++;
+        }
+      }
+    }
+
     for(let wi=0;wi<weeks.length;wi++) {
       let weekText, targetProgress;
       if(parsed) {
         const base = goal.text.replace(/\d+\s*(권|개|회|번|장|편|km|kg|시간|분|페이지|p|박스|병|잔|세트)/g,'').trim().replace(/\s+/g,' ');
-        const share = wi < (parsed.num % weeks.length || weeks.length)
-          ? Math.ceil(parsed.num/weeks.length)
-          : Math.floor(parsed.num/weeks.length);
+        const share = shares[wi];
         weekText = `${base} [${share}${parsed.unit}]`.trim();
-        targetProgress = Math.round((share/parsed.num)*100);
+        targetProgress = parsed.num > 0 ? Math.round((share/parsed.num)*100) : 0;
       } else {
         weekText = goal.text.trim();
         targetProgress = Math.round(100/weeks.length);
@@ -567,7 +588,8 @@ function renderTimeline() {
     c.appendChild(row);
   }
 
-  if(settings.scrollNow && curHour>=0){
+  const isInputActive = document.activeElement && document.activeElement.tagName === 'TEXTAREA';
+  if(settings.scrollNow && curHour>=0 && !isInputActive){
     setTimeout(()=>{
       const rows=c.querySelectorAll('.current-hour');
       if(rows.length) rows[0].scrollIntoView({block:'center',behavior:'smooth'});
@@ -586,7 +608,7 @@ function buildEntryCell(rowData, col, placeholder) {
   ta.dataset.col=col;
   /* Prevent iOS zoom: font-size ≥ 16px */
   ta.style.fontSize='16px';
-  ta.addEventListener('focus',()=>{
+  const handleStickerInsert = () => {
     if (state.selectedSticker) {
       const start = ta.selectionStart;
       const end = ta.selectionEnd;
@@ -604,7 +626,9 @@ function buildEntryCell(rowData, col, placeholder) {
       
       clearSelectedSticker();
     }
-  });
+  };
+  ta.addEventListener('focus', handleStickerInsert);
+  ta.addEventListener('click', handleStickerInsert);
   ta.addEventListener('input',()=>{
     ta.style.height='auto';
     ta.style.height=ta.scrollHeight+'px';
