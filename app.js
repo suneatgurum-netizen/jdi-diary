@@ -608,8 +608,9 @@ function buildEntryCell(rowData, col, placeholder) {
   ta.dataset.col=col;
   /* Prevent iOS zoom: font-size ≥ 16px */
   ta.style.fontSize='16px';
-  const handleStickerInsert = () => {
+  const handleStickerInsert = (e) => {
     if (state.selectedSticker) {
+      if (e) e.preventDefault(); // 스티커를 붙일 때는 모바일 자판이 열리지 않도록 차단
       const start = ta.selectionStart;
       const end = ta.selectionEnd;
       const text = ta.value;
@@ -627,8 +628,10 @@ function buildEntryCell(rowData, col, placeholder) {
       clearSelectedSticker();
     }
   };
-  ta.addEventListener('focus', handleStickerInsert);
-  ta.addEventListener('click', handleStickerInsert);
+  // touchstart, mousedown을 통해 키보드가 팝업되기 전에 이모지를 붙이고 차단(preventDefault)
+  ta.addEventListener('touchstart', handleStickerInsert, {passive: false});
+  ta.addEventListener('mousedown', handleStickerInsert);
+  ta.addEventListener('focus', () => { if(state.selectedSticker) handleStickerInsert(); });
   ta.addEventListener('input',()=>{
     ta.style.height='auto';
     ta.style.height=ta.scrollHeight+'px';
@@ -1140,11 +1143,21 @@ function bindEvents(){
     dayGoalsBar.addEventListener('touchend', preventPropagation, {passive:true});
   }
 
-  /* Swipe on day view: left = next day, right = prev day */
+  /* Swipe on day view: left = next column, right = prev column */
   const daySection=$('view-day');
   addSwipeHandler(daySection,
-    ()=>{ if(state.view==='day') changeDay(1); },
-    ()=>{ if(state.view==='day') changeDay(-1); }
+    ()=>{
+      if(state.view==='day') {
+        if (state.activeCol==='just') switchActiveCol('do');
+        else if (state.activeCol==='do') switchActiveCol('it');
+      }
+    },
+    ()=>{
+      if(state.view==='day') {
+        if (state.activeCol==='it') switchActiveCol('do');
+        else if (state.activeCol==='do') switchActiveCol('just');
+      }
+    }
   );
   /* Swipe on week view: left = next week, right = prev week */
   const weekSection=$('view-week');
@@ -1279,7 +1292,7 @@ function initStickerPanel() {
     clearSelectedSticker();
   });
   
-  panel.addEventListener('click', e => {
+  const handleStickerSelect = e => {
     const item = e.target.closest('.sticker-item');
     if (item) {
       const emoji = item.dataset.emoji;
@@ -1302,7 +1315,9 @@ function initStickerPanel() {
         footer.style.fontWeight = 'bold';
       }
     }
-  });
+  };
+  panel.addEventListener('click', handleStickerSelect);
+  panel.addEventListener('touchstart', handleStickerSelect, {passive: true});
   
   panel.addEventListener('dragstart', e => {
     if (e.target.classList.contains('sticker-item')) {
