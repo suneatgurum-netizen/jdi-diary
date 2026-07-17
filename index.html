@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#4a654e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="JDI Diary">
+<title>JDI Diary — Just Do It</title>
+<meta name="description" content="스마트 월간·주간·일간 다이어리. 목표를 설정하고 체계적으로 달성하세요.">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<!-- TOP APP BAR -->
+<header class="app-bar">
+  <button class="icon-btn" id="btn-menu" aria-label="메뉴">
+    <span class="material-symbols-outlined">menu</span>
+  </button>
+  <div class="app-bar-center">
+    <span class="app-title" id="header-title">JDI Diary</span>
+    <span class="app-subtitle" id="header-subtitle"></span>
+  </div>
+  <div style="display: flex; gap: 4px;">
+    <button class="icon-btn" id="btn-stickers-header" aria-label="스티커 열기">
+      <span class="material-symbols-outlined">sentiment_satisfied</span>
+    </button>
+    <button class="icon-btn" id="btn-settings" aria-label="설정">
+      <span class="material-symbols-outlined">settings</span>
+    </button>
+  </div>
+</header>
+
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawer-overlay"></div>
+
+<!-- SIDE DRAWER -->
+<aside class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-logo">
+      <span class="material-symbols-outlined" style="font-size:28px;color:var(--primary)">auto_stories</span>
+      <span class="drawer-brand">JDI Diary</span>
+    </div>
+    <button class="icon-btn" id="btn-close-drawer">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+  </div>
+  <nav class="drawer-nav">
+    <button class="drawer-item active" data-view="month">
+      <span class="material-symbols-outlined">calendar_month</span>월간 계획
+    </button>
+    <button class="drawer-item" data-view="week">
+      <span class="material-symbols-outlined">view_week</span>주간 목표
+    </button>
+    <button class="drawer-item" data-view="day">
+      <span class="material-symbols-outlined">today</span>일간 다이어리
+    </button>
+  </nav>
+  <div class="drawer-section-title">저장</div>
+  <div class="drawer-footer">
+    <button class="btn-secondary full-width" id="btn-export-drive">
+      <span class="material-symbols-outlined">cloud_upload</span>
+      Google Drive 저장
+    </button>
+    <button class="btn-ghost full-width" id="btn-export-local">
+      <span class="material-symbols-outlined">download</span>
+      로컬 저장 (JSON)
+    </button>
+    <button class="btn-ghost full-width" id="btn-import-local">
+      <span class="material-symbols-outlined">upload</span>
+      불러오기 (JSON)
+    </button>
+    <input type="file" id="import-file-input" accept=".json" style="display:none">
+  </div>
+</aside>
+
+<!-- MAIN LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR desktop -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-month-header">
+      <button class="icon-btn-sm" id="prev-month"><span class="material-symbols-outlined">chevron_left</span></button>
+      <span class="sidebar-month-label" id="sidebar-month-label"></span>
+      <button class="icon-btn-sm" id="next-month"><span class="material-symbols-outlined">chevron_right</span></button>
+    </div>
+    <div class="week-tabs" id="week-tabs"></div>
+    <div class="weekly-goals-panel" id="weekly-goals-panel">
+      <div class="panel-label">주간 배분 목표</div>
+      <div id="weekly-goals-list" class="weekly-goals-list"></div>
+    </div>
+    <div class="panel-label" style="margin-top:16px">일간 선택</div>
+    <div class="day-picker" id="day-picker"></div>
+    <button class="btn-secondary full-width" id="btn-stickers" style="margin-top:12px;">
+      <span class="material-symbols-outlined">sentiment_satisfied</span>스티커 열기
+    </button>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="main-content">
+
+    <!-- ══ MONTH VIEW ══ -->
+    <section class="view active" id="view-month">
+      <div class="view-header">
+        <div class="view-nav">
+          <button class="icon-btn-sm" id="prev-month-m"><span class="material-symbols-outlined">chevron_left</span></button>
+          <h2 class="view-title" id="month-view-title"></h2>
+          <button class="icon-btn-sm" id="next-month-m"><span class="material-symbols-outlined">chevron_right</span></button>
+        </div>
+        <button class="btn-primary" id="btn-distribute">
+          <span class="material-symbols-outlined">auto_awesome</span>
+          <span class="btn-text-full">주간 자동 배분</span>
+          <span class="btn-text-short">배분</span>
+        </button>
+      </div>
+
+      <!-- Monthly Goals -->
+      <div class="card paper-stack">
+        <div class="card-header">
+          <h3 class="section-title"><span class="highlight">Monthly Goals</span></h3>
+          <button class="btn-ghost-sm" id="btn-add-goal">
+            <span class="material-symbols-outlined">add</span><span class="hide-mobile">목표 추가</span>
+          </button>
+        </div>
+        <div class="goals-grid" id="monthly-goals-list"></div>
+      </div>
+
+      <!-- Weekly Summary -->
+      <div class="section-title-row">
+        <h3 class="section-title"><span class="highlight">Weekly Overview</span></h3>
+      </div>
+      <div class="weekly-summary-grid" id="weekly-summary-grid"></div>
+    </section>
+
+    <!-- ══ WEEK VIEW ══ -->
+    <section class="view" id="view-week">
+      <div class="view-header">
+        <h2 class="view-title" id="week-view-title"></h2>
+      </div>
+      <div class="week-tab-bar-row">
+        <div class="week-tab-bar" id="week-tab-bar-main"></div>
+        <span class="label-mono" id="week-date-range"></span>
+      </div>
+      <div class="card paper-stack">
+        <div class="card-header">
+          <h3 class="section-title"><span class="highlight">Weekly Goals</span></h3>
+          <button class="btn-ghost-sm" id="btn-add-weekly-goal">
+            <span class="material-symbols-outlined">add</span><span class="hide-mobile">추가</span>
+          </button>
+        </div>
+        <div id="weekly-goals-main-list" class="weekly-goals-main"></div>
+      </div>
+    </section>
+
+    <!-- ══ DAY VIEW ══ -->
+    <section class="view" id="view-day">
+      <div class="view-header">
+        <div class="view-nav">
+          <button class="icon-btn-sm" id="prev-day"><span class="material-symbols-outlined">chevron_left</span></button>
+          <h2 class="view-title" id="day-view-title"></h2>
+          <button class="icon-btn-sm" id="next-day"><span class="material-symbols-outlined">chevron_right</span></button>
+        </div>
+        <div class="day-header-actions">
+          <button class="btn-ghost-sm" id="btn-today">오늘</button>
+          <button class="btn-primary-sm" id="btn-save-day">
+            <span class="material-symbols-outlined">save</span><span class="hide-mobile">저장</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Day goals bar -->
+      <div class="day-goals-bar" id="day-goals-bar"></div>
+
+      <!-- Mobile column switcher (mobile only) -->
+      <div class="col-switcher" id="col-switcher">
+        <button class="col-switch-btn active" data-col="just">
+          <span class="col-switch-label">[just]</span>
+          <span class="col-switch-sub">할 일</span>
+        </button>
+        <button class="col-switch-btn" data-col="do">
+          <span class="col-switch-label">[do]</span>
+          <span class="col-switch-sub">한 일</span>
+        </button>
+        <button class="col-switch-btn" data-col="it">
+          <span class="col-switch-label">[it]</span>
+          <span class="col-switch-sub">칭찬/반성</span>
+        </button>
+      </div>
+
+      <!-- Timeline -->
+      <div class="card paper-stack timeline-card" id="timeline-card">
+        <!-- Header: desktop 4-col, mobile 2-col -->
+        <div class="timeline-header" id="timeline-header">
+          <div class="timeline-time-col">
+            <span class="material-symbols-outlined" style="font-size:16px;color:var(--on-surface-var)">schedule</span>
+          </div>
+          <div class="timeline-col-header just desktop-only">
+            <span class="col-label">[just]</span>
+            <span class="col-sub">할 일</span>
+          </div>
+          <div class="timeline-col-header do desktop-only">
+            <span class="col-label">[do]</span>
+            <span class="col-sub">한 일</span>
+          </div>
+          <div class="timeline-col-header it desktop-only">
+            <span class="col-label">[it]</span>
+            <span class="col-sub">칭찬/반성</span>
+          </div>
+          <!-- Mobile: single active col header -->
+          <div class="timeline-col-header mobile-active-header mobile-only" id="mobile-active-header">
+            <span class="col-label" id="mobile-col-label">[just]</span>
+            <span class="col-sub" id="mobile-col-sub">할 일</span>
+          </div>
+        </div>
+        <div class="timeline-body" id="timeline-body"></div>
+      </div>
+
+      <!-- Now indicator -->
+      <div class="now-indicator" id="now-indicator">
+        <span class="now-dot"></span>
+        <span class="now-label" id="now-label"></span>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="bottom-nav-item active" data-view="month" id="bnav-month">
+    <span class="material-symbols-outlined">calendar_month</span>
+    <span>월간</span>
+  </button>
+  <button class="bottom-nav-item" data-view="week" id="bnav-week">
+    <span class="material-symbols-outlined">view_week</span>
+    <span>주간</span>
+  </button>
+  <div class="bottom-nav-fab-wrap">
+    <button class="bottom-nav-fab" data-view="day" id="bnav-day">
+      <span class="material-symbols-outlined">edit_note</span>
+    </button>
+    <span class="bottom-nav-fab-label">일간</span>
+  </div>
+  <button class="bottom-nav-item" id="bottom-export">
+    <span class="material-symbols-outlined">cloud_upload</span>
+    <span>Drive</span>
+  </button>
+  <button class="bottom-nav-item" id="bottom-save-local">
+    <span class="material-symbols-outlined">save</span>
+    <span>저장</span>
+  </button>
+</nav>
+
+<!-- ════ MODALS ════ -->
+
+<!-- Distribute Modal -->
+<div class="modal-backdrop" id="modal-distribute">
+  <div class="modal">
+    <div class="modal-icon">✨</div>
+    <h3 class="modal-title">주간 목표 자동 배분</h3>
+    <p class="modal-desc">월간 목표를 분석해서 각 주차별로 균등하게 배분합니다.</p>
+    <div class="modal-preview" id="distribute-preview"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="btn-cancel-distribute">취소</button>
+      <button class="btn-primary" id="btn-confirm-distribute">배분하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- Google Drive Modal -->
+<div class="modal-backdrop" id="modal-drive">
+  <div class="modal">
+    <div class="modal-icon">☁️</div>
+    <h3 class="modal-title">Google Drive 저장</h3>
+    <p class="modal-desc">다이어리를 Google Drive에 Word 문서로 저장합니다.</p>
+    <div class="modal-field">
+      <label class="field-label">파일명</label>
+      <input type="text" class="field-input" id="drive-filename">
+    </div>
+    <div id="drive-status" class="drive-status"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="btn-cancel-drive">취소</button>
+      <button class="btn-primary" id="btn-google-signin">
+        <span class="material-symbols-outlined">login</span>
+        Google 로그인 &amp; 저장
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-backdrop" id="modal-settings">
+  <div class="modal modal-tall">
+    <h3 class="modal-title">⚙️ 설정</h3>
+    <div class="settings-list">
+      <div class="setting-row">
+        <span class="setting-label">다크 모드</span>
+        <label class="toggle">
+          <input type="checkbox" id="dark-mode-toggle">
+          <span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">자동 저장 (30초)</span>
+        <label class="toggle">
+          <input type="checkbox" id="auto-save-toggle" checked>
+          <span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">현재 시간으로 자동 스크롤</span>
+        <label class="toggle">
+          <input type="checkbox" id="scroll-now-toggle" checked>
+          <span class="toggle-thumb"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Google Client ID</span>
+      </div>
+      <div style="padding-bottom:12px;">
+        <input type="text" class="field-input" id="google-client-id"
+               placeholder="xxxx.apps.googleusercontent.com" style="font-size:12px;width:100%">
+        <p style="font-size:11px;color:var(--outline);margin-top:4px">
+          Google Cloud Console에서 발급한 OAuth 2.0 Client ID
+        </p>
+      </div>
+      <div class="setting-row danger">
+        <span class="setting-label" style="color:var(--error)">전체 데이터 초기화</span>
+        <button class="btn-danger-sm" id="btn-reset-data">초기화</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="btn-close-settings">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Sticker Panel -->
+<div class="sticker-panel" id="sticker-panel">
+  <div class="sticker-panel-header">
+    <span class="sticker-panel-title">✨ 스티커 붙이기</span>
+    <button class="sticker-close" id="btn-close-stickers" aria-label="닫기">✕</button>
+  </div>
+  <div class="sticker-panel-body">
+    <div class="sticker-section">
+      <div class="sticker-sec-title">칭찬 스티커</div>
+      <div class="sticker-list">
+        <span class="sticker-item" draggable="true" data-emoji="🏆">🏆</span>
+        <span class="sticker-item" draggable="true" data-emoji="👑">👑</span>
+        <span class="sticker-item" draggable="true" data-emoji="⭐">⭐</span>
+        <span class="sticker-item" draggable="true" data-emoji="👏">👏</span>
+        <span class="sticker-item" draggable="true" data-emoji="🎉">🎉</span>
+        <span class="sticker-item" draggable="true" data-emoji="👍">👍</span>
+        <span class="sticker-item" draggable="true" data-emoji="🔥">🔥</span>
+        <span class="sticker-item" draggable="true" data-emoji="🥰">🥰</span>
+      </div>
+    </div>
+    <div class="sticker-section">
+      <div class="sticker-sec-title">보통 스티커</div>
+      <div class="sticker-list">
+        <span class="sticker-item" draggable="true" data-emoji="🙂">🙂</span>
+        <span class="sticker-item" draggable="true" data-emoji="☕">☕</span>
+        <span class="sticker-item" draggable="true" data-emoji="📝">📝</span>
+        <span class="sticker-item" draggable="true" data-emoji="🏃">🏃</span>
+        <span class="sticker-item" draggable="true" data-emoji="💬">💬</span>
+        <span class="sticker-item" draggable="true" data-emoji="📅">📅</span>
+        <span class="sticker-item" draggable="true" data-emoji="🧹">🧹</span>
+        <span class="sticker-item" draggable="true" data-emoji="🛒">🛒</span>
+      </div>
+    </div>
+    <div class="sticker-section">
+      <div class="sticker-sec-title">경고/나쁨 스티커</div>
+      <div class="sticker-list">
+        <span class="sticker-item" draggable="true" data-emoji="😢">😢</span>
+        <span class="sticker-item" draggable="true" data-emoji="⚠️">⚠️</span>
+        <span class="sticker-item" draggable="true" data-emoji="💔">💔</span>
+        <span class="sticker-item" draggable="true" data-emoji="💤">💤</span>
+        <span class="sticker-item" draggable="true" data-emoji="🤦">🤦</span>
+        <span class="sticker-item" draggable="true" data-emoji="🌧️">🌧️</span>
+        <span class="sticker-item" draggable="true" data-emoji="🤒">🤒</span>
+        <span class="sticker-item" draggable="true" data-emoji="💸">💸</span>
+      </div>
+    </div>
+  </div>
+  <div class="sticker-panel-footer">이모지를 마우스로 끌어서 날짜나 타임라인 입력창에 놓으세요</div>
+</div>
+
+<!-- PWA Install Banner -->
+<div class="install-banner" id="install-banner">
+  <div class="install-banner-content">
+    <span class="material-symbols-outlined" style="color:var(--primary)">install_mobile</span>
+    <div>
+      <div class="install-banner-title">홈 화면에 추가</div>
+      <div class="install-banner-sub">앱처럼 사용하세요</div>
+    </div>
+  </div>
+  <div class="install-banner-actions">
+    <button class="btn-ghost-sm" id="install-dismiss">나중에</button>
+    <button class="btn-primary-sm" id="install-accept">설치</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

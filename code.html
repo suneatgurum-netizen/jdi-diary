@@ -1,0 +1,258 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Monthly Planner</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#3e4a42",
+                        "secondary-fixed-dim": "#bdcabf",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#592c00",
+                        "surface": "#f9f9f9",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#d9e6db",
+                        "secondary-container": "#d6e3d8",
+                        "outline": "#737972",
+                        "inverse-primary": "#b0ceb2",
+                        "inverse-on-surface": "#f0f1f1",
+                        "background": "#f9f9f9",
+                        "tertiary-fixed-dim": "#ffb780",
+                        "tertiary": "#8e4e14",
+                        "on-tertiary-fixed": "#2f1400",
+                        "on-surface-variant": "#424842",
+                        "on-primary-fixed-variant": "#334d38",
+                        "primary-fixed": "#cceace",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#2f3131",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#8ba88e",
+                        "on-background": "#1a1c1c",
+                        "surface-dim": "#dadada",
+                        "on-secondary-fixed": "#131e17",
+                        "surface-variant": "#e2e2e2",
+                        "surface-container": "#eeeeee",
+                        "on-tertiary-fixed-variant": "#6f3800",
+                        "surface-container-highest": "#e2e2e2",
+                        "on-primary-fixed": "#07200f",
+                        "outline-variant": "#c2c8c0",
+                        "tertiary-fixed": "#ffdcc4",
+                        "surface-container-high": "#e8e8e8",
+                        "on-error": "#ffffff",
+                        "primary": "#4a654e",
+                        "on-secondary-container": "#59665d",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#b0ceb2",
+                        "surface-container-low": "#f3f3f3",
+                        "surface-bright": "#f9f9f9",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "tertiary-container": "#dd8f50",
+                        "on-surface": "#1a1c1c",
+                        "surface-tint": "#4a654e",
+                        "secondary": "#556159",
+                        "on-primary-container": "#233d29"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "grid-unit": "8px",
+                        "stack-lg": "24px",
+                        "gutter": "16px",
+                        "stack-md": "12px",
+                        "stack-sm": "4px",
+                        "margin-page": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-mono": ["JetBrains Mono"],
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-md": ["Hanken Grotesk"],
+                        "label-caps": ["Hanken Grotesk"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "body-lg": ["Hanken Grotesk"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-mono": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #f9f9f9;
+            background-image: 
+                linear-gradient(to right, #e2e2e2 1px, transparent 1px),
+                linear-gradient(to bottom, #e2e2e2 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-position: top left;
+        }
+        
+        .paper-stack {
+            box-shadow: 2px 2px 0 0 #e2e2e2;
+        }
+        
+        .graph-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #c2c8c0;
+            line-height: 24px; /* Align to grid */
+            padding-bottom: 2px;
+        }
+        .graph-input:focus {
+            outline: none;
+            border-bottom: 1px solid #4a654e;
+        }
+        
+        /* Hide scrollbar for nav */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</head>
+<body class="text-on-surface min-h-screen pb-[80px] md:pb-0 font-body-md antialiased relative">
+<!-- TopAppBar (Web & Mobile) -->
+<header class="bg-surface dark:bg-background w-full top-0 sticky z-40 border-b border-outline-variant dark:border-outline flat no shadows transition-colors duration-200 ease-in-out flex items-center justify-between px-margin-page py-stack-md">
+<button class="text-primary dark:text-primary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-highest p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim tracking-tight">Monthly Planner</h1>
+<button class="text-primary dark:text-primary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-highest p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</header>
+<div class="flex flex-col md:flex-row max-w-7xl mx-auto w-full relative">
+<!-- NavigationDrawer (Web only, semantic representation of weekly tabs in a split layout) -->
+<nav class="hidden md:flex bg-surface-container-lowest dark:bg-inverse-surface h-[calc(100vh-64px)] w-64 sticky left-0 top-[64px] border-r border-outline-variant dark:border-outline flat no shadows flex-col p-stack-lg gap-stack-md z-30"><h2 class="font-headline-sm text-headline-sm text-primary mb-stack-sm">Weekly Focus</h2><div class="overflow-x-auto no-scrollbar border-b border-outline-variant pb-2"><ul class="flex gap-2 w-max"><li class="shrink-0"><button class="bg-primary text-on-primary px-3 py-1 rounded-full text-label-caps font-bold">W1</button></li><li class="shrink-0"><button class="text-on-surface-variant px-3 py-1 hover:bg-surface-variant rounded-full text-label-caps">W2</button></li><li class="shrink-0"><button class="text-on-surface-variant px-3 py-1 hover:bg-surface-variant rounded-full text-label-caps">W3</button></li><li class="shrink-0"><button class="text-on-surface-variant px-3 py-1 hover:bg-surface-variant rounded-full text-label-caps">W4</button></li><li class="shrink-0"><button class="text-on-surface-variant px-3 py-1 hover:bg-surface-variant rounded-full text-label-caps">W5</button></li></ul></div><div class="flex-1 flex flex-col gap-stack-md mt-4"><h3 class="text-label-caps text-on-surface-variant font-bold">Weekly Goals</h3><ul class="flex flex-col gap-3"><li class="flex items-center gap-2 border-b border-outline-variant pb-1"><span class="material-symbols-outlined text-primary text-sm">circle</span><input class="bg-transparent border-none p-0 w-full text-sm focus:ring-0" placeholder="Focus 1..." type="text"></li><li class="flex items-center gap-2 border-b border-outline-variant pb-1"><span class="material-symbols-outlined text-primary text-sm">circle</span><input class="bg-transparent border-none p-0 w-full text-sm focus:ring-0" placeholder="Focus 2..." type="text"></li><li class="flex items-center gap-2 border-b border-outline-variant pb-1"><span class="material-symbols-outlined text-primary text-sm">circle</span><input class="bg-transparent border-none p-0 w-full text-sm focus:ring-0" placeholder="Focus 3..." type="text"></li></ul></div></nav>
+<!-- Main Content Area -->
+<main class="flex-1 w-full flex flex-col pt-stack-md px-margin-page pb-[100px] md:pb-stack-lg z-10 relative">
+<!-- Mobile Week Nav (Horizontal) -->
+<div class="md:hidden w-full overflow-x-auto no-scrollbar mb-stack-lg border-b border-outline-variant pt-2">
+<ul class="flex w-max gap-6 px-2">
+<li class="relative pb-2">
+<button class="font-label-caps text-label-caps text-primary font-bold">Week 1</button>
+<div class="absolute bottom-[-1px] left-0 w-full h-[2px] bg-primary"></div>
+</li>
+<li class="relative pb-2">
+<button class="font-label-caps text-label-caps text-on-surface-variant">Week 2</button>
+</li>
+<li class="relative pb-2">
+<button class="font-label-caps text-label-caps text-on-surface-variant">Week 3</button>
+</li>
+<li class="relative pb-2">
+<button class="font-label-caps text-label-caps text-on-surface-variant">Week 4</button>
+</li>
+<li class="relative pb-2">
+<button class="font-label-caps text-label-caps text-on-surface-variant">Week 5</button>
+</li>
+</ul>
+</div>
+<!-- Monthly Goals Section -->
+<section class="mb-stack-lg bg-surface-container-lowest p-stack-md rounded border border-surface-variant paper-stack relative"><div class="hidden md:block absolute -left-4 top-1/2 -translate-y-1/2 w-4 h-8 bg-primary-container rounded-l-full border-l border-t border-b border-surface-variant"></div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-stack-sm relative inline-block z-10">
+<span class="absolute bottom-0 left-0 w-full h-1/2 bg-secondary-container -z-10 rounded-sm"></span>
+                    Monthly Goals
+                </h2>
+<div class="flex flex-col gap-[24px] mt-4"><div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+    <div class="flex flex-col gap-1 border-b border-outline-variant pb-2"><div class="flex items-center justify-between"><div class="flex items-center gap-2 flex-1"><span class="material-symbols-outlined text-primary text-sm">check_box_outline_blank</span><input class="bg-transparent border-none p-0 w-full font-body-md text-on-surface focus:ring-0" placeholder="Goal..." type="text"></div><span class="text-label-mono text-primary">75%</span></div><div class="w-full bg-surface-container h-1 rounded-full overflow-hidden"><div class="bg-primary h-full w-[75%]"></div></div></div>
+    <div class="flex flex-col gap-1 border-b border-outline-variant pb-2"><div class="flex items-center justify-between"><div class="flex items-center gap-2 flex-1"><span class="material-symbols-outlined text-primary text-sm">check_box_outline_blank</span><input class="bg-transparent border-none p-0 w-full font-body-md text-on-surface focus:ring-0" placeholder="Goal..." type="text"></div><span class="text-label-mono text-primary">75%</span></div><div class="w-full bg-surface-container h-1 rounded-full overflow-hidden"><div class="bg-primary h-full w-[75%]"></div></div></div>
+    <div class="flex flex-col gap-1 border-b border-outline-variant pb-2"><div class="flex items-center justify-between"><div class="flex items-center gap-2 flex-1"><span class="material-symbols-outlined text-primary text-sm">check_box_outline_blank</span><input class="bg-transparent border-none p-0 w-full font-body-md text-on-surface focus:ring-0" placeholder="Goal..." type="text"></div><span class="text-label-mono text-primary">75%</span></div><div class="w-full bg-surface-container h-1 rounded-full overflow-hidden"><div class="bg-primary h-full w-[75%]"></div></div></div>
+    <div class="flex flex-col gap-1 border-b border-outline-variant pb-2"><div class="flex items-center justify-between"><div class="flex items-center gap-2 flex-1"><span class="material-symbols-outlined text-primary text-sm">check_box_outline_blank</span><input class="bg-transparent border-none p-0 w-full font-body-md text-on-surface focus:ring-0" placeholder="Goal..." type="text"></div><span class="text-label-mono text-primary">75%</span></div><div class="w-full bg-surface-container h-1 rounded-full overflow-hidden"><div class="bg-primary h-full w-[75%]"></div></div></div>
+    <div class="flex flex-col gap-1 border-b border-outline-variant pb-2"><div class="flex items-center justify-between"><div class="flex items-center gap-2 flex-1"><span class="material-symbols-outlined text-primary text-sm">check_box_outline_blank</span><input class="bg-transparent border-none p-0 w-full font-body-md text-on-surface focus:ring-0" placeholder="Goal..." type="text"></div><span class="text-label-mono text-primary">75%</span></div><div class="w-full bg-surface-container h-1 rounded-full overflow-hidden"><div class="bg-primary h-full w-[75%]"></div></div></div>
+    <div class="flex flex-col gap-1 border-b border-outline-variant pb-2"><div class="flex items-center justify-between"><div class="flex items-center gap-2 flex-1"><span class="material-symbols-outlined text-primary text-sm">check_box_outline_blank</span><input class="bg-transparent border-none p-0 w-full font-body-md text-on-surface focus:ring-0" placeholder="Goal..." type="text"></div><span class="text-label-mono text-primary">75%</span></div><div class="w-full bg-surface-container h-1 rounded-full overflow-hidden"><div class="bg-primary h-full w-[75%]"></div></div></div>
+    <div class="flex flex-col gap-1 border-b border-outline-variant pb-2"><div class="flex items-center justify-between"><div class="flex items-center gap-2 flex-1"><span class="material-symbols-outlined text-primary text-sm">check_box_outline_blank</span><input class="bg-transparent border-none p-0 w-full font-body-md text-on-surface focus:ring-0" placeholder="Goal..." type="text"></div><span class="text-label-mono text-primary">75%</span></div><div class="w-full bg-surface-container h-1 rounded-full overflow-hidden"><div class="bg-primary h-full w-[75%]"></div></div></div>
+    <div class="flex flex-col gap-1 border-b border-outline-variant pb-2"><div class="flex items-center justify-between"><div class="flex items-center gap-2 flex-1"><span class="material-symbols-outlined text-primary text-sm">check_box_outline_blank</span><input class="bg-transparent border-none p-0 w-full font-body-md text-on-surface focus:ring-0" placeholder="Goal..." type="text"></div><span class="text-label-mono text-primary">75%</span></div><div class="w-full bg-surface-container h-1 rounded-full overflow-hidden"><div class="bg-primary h-full w-[75%]"></div></div></div>
+</div></div>
+</section>
+<!-- Timeline Structure -->
+<section class="flex-1">
+<div class="bg-surface-container-lowest border border-surface-variant rounded paper-stack overflow-hidden">
+<!-- Table Header -->
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant bg-surface-container">
+<div class="p-2 border-r border-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px]">schedule</span>
+</div>
+<div class="p-2 border-r border-surface-variant text-center font-label-caps text-label-caps text-on-surface-variant">
+                            [just]
+                        </div>
+<div class="p-2 border-r border-surface-variant text-center font-label-caps text-label-caps text-on-surface-variant">
+                            [do]
+                        </div>
+<div class="p-2 text-center font-label-caps text-label-caps text-on-surface-variant">
+                            [it]
+                        </div>
+</div>
+<!-- Timeline Rows (Generating a few for layout demonstration) -->
+<div class="flex flex-col"><div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">00:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">01:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">02:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">03:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">04:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">05:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">06:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">07:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">08:00</span></div><div class="border-r border-surface-variant p-2"><input class="w-full bg-transparent border-none p-0 text-sm focus:ring-0 text-on-surface font-body-md placeholder-outline-variant" placeholder="Morning prep" type="text"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">09:00</span></div><div class="border-r border-surface-variant p-2 bg-primary-fixed/20"><input class="w-full bg-transparent border-none p-0 text-sm focus:ring-0 text-on-primary-fixed font-body-md font-semibold" type="text" value="Deep Work Block"></div><div class="border-r border-surface-variant p-2 bg-primary-fixed/20"><input class="w-full bg-transparent border-none p-0 text-sm focus:ring-0 text-on-primary-fixed font-body-md" type="text" value="Design Sys"></div><div class="p-2 bg-primary-fixed/20"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">10:00</span></div><div class="border-r border-surface-variant p-2 bg-primary-fixed/20"></div><div class="border-r border-surface-variant p-2 bg-primary-fixed/20"></div><div class="p-2 bg-primary-fixed/20"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">11:00</span></div><div class="border-r border-surface-variant p-2"><input class="w-full bg-transparent border-none p-0 text-sm focus:ring-0 text-on-surface font-body-md" placeholder="Review PRs" type="text"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">12:00</span></div><div class="border-r border-surface-variant p-2 bg-secondary-container/30"><input class="w-full bg-transparent border-none p-0 text-sm focus:ring-0 text-on-surface font-body-md italic" type="text" value="Lunch Walk"></div><div class="border-r border-surface-variant p-2 bg-secondary-container/30"></div><div class="p-2 bg-secondary-container/30"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">13:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">14:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">15:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">16:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">17:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">18:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">19:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">20:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">21:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">22:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">23:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div>
+<div class="grid grid-cols-[60px_1fr_1fr_1fr] border-b border-surface-variant min-h-[48px]"><div class="border-r border-surface-variant flex items-center justify-center bg-surface-bright"><span class="font-label-mono text-label-mono text-on-surface-variant">24:00</span></div><div class="border-r border-surface-variant p-2"></div><div class="border-r border-surface-variant p-2"></div><div class="p-2"></div></div></div>
+</div>
+</section>
+</main>
+</div>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="md:hidden bg-surface dark:bg-surface-container-lowest fixed bottom-0 w-full z-50 border-t border-outline-variant dark:border-outline flat no shadows flex justify-around items-center px-4 py-2 transition-all duration-200">
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 hover:text-primary dark:hover:text-primary-fixed">
+<span class="material-symbols-outlined mb-1">calendar_month</span>
+<span class="font-label-caps text-label-caps">Month</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-primary-container dark:bg-primary-fixed-dim text-on-primary-container dark:text-on-primary-fixed rounded-full px-6 py-1 hover:text-primary dark:hover:text-primary-fixed">
+<span class="material-symbols-outlined mb-1">view_timeline</span>
+<span class="font-label-caps text-label-caps">Timeline</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 hover:text-primary dark:hover:text-primary-fixed">
+<span class="material-symbols-outlined mb-1">assignment_turned_in</span>
+<span class="font-label-caps text-label-caps">Goals</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant py-1 hover:text-primary dark:hover:text-primary-fixed">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</button>
+</nav>
+
+
+</body></html>
