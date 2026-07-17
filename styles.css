@@ -1069,6 +1069,11 @@ body.mobile-mode .entry-cell.col-active { display: block; border-right: none; }
 .sticker-item:active {
   cursor: grabbing;
 }
+.sticker-item.active {
+  background: var(--primary-light) !important;
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px var(--primary);
+}
 .sticker-panel-footer {
   padding: 8px 14px;
   background: var(--surface-low);

@@ -60,7 +60,8 @@ let state = {
   activeCol: 'just',    // mobile timeline active column
   autoSaveTimer: null,
   deferredInstall: null, // PWA install prompt
-  accessToken: null     // OAuth2 access token
+  accessToken: null,     // OAuth2 access token
+  selectedSticker: null  // 선택된 스티커 (클릭 기반 붙여넣기용)
 };
 
 /* ══ Week Calculation ══ */
@@ -257,8 +258,22 @@ function renderDayPicker() {
     if(db.days[dk]&&db.days[dk].timeline?.some(r=>r.just||r.do||r.it)) b.classList.add('has-data');
     
     b.addEventListener('click',()=>{
-      if(state.view==='day') saveDayFromDOM();
-      state.day=d; state.week=getWeekForDay(d); switchView('day');
+      if (state.selectedSticker) {
+        if (!db.days[dk]) {
+          db.days[dk] = { timeline: Array.from({length: 25}, (_, i) => ({hour: i, just: '', do: '', it: ''})) };
+        }
+        db.days[dk].sticker = state.selectedSticker;
+        saveData();
+        renderDayPicker();
+        if (d === state.day) {
+          renderDayView();
+        }
+        showToast(`📅 ${d}일에 스티커가 붙었습니다!`);
+        clearSelectedSticker();
+      } else {
+        if(state.view==='day') saveDayFromDOM();
+        state.day=d; state.week=getWeekForDay(d); switchView('day');
+      }
     });
     
     // Drag & Drop for calendar day
@@ -571,6 +586,25 @@ function buildEntryCell(rowData, col, placeholder) {
   ta.dataset.col=col;
   /* Prevent iOS zoom: font-size ≥ 16px */
   ta.style.fontSize='16px';
+  ta.addEventListener('focus',()=>{
+    if (state.selectedSticker) {
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const text = ta.value;
+      const emoji = state.selectedSticker;
+      ta.value = text.substring(0, start) + emoji + text.substring(end);
+      rowData[col] = ta.value;
+      ta.dispatchEvent(new Event('input'));
+      
+      const newPos = start + emoji.length;
+      setTimeout(() => {
+        ta.focus();
+        ta.setSelectionRange(newPos, newPos);
+      }, 0);
+      
+      clearSelectedSticker();
+    }
+  });
   ta.addEventListener('input',()=>{
     ta.style.height='auto';
     ta.style.height=ta.scrollHeight+'px';
@@ -628,10 +662,25 @@ function renderNowIndicator() {
   }
 }
 
+function clearSelectedSticker() {
+  state.selectedSticker = null;
+  const panel = $('sticker-panel');
+  if (panel) {
+    panel.querySelectorAll('.sticker-item').forEach(el => el.classList.remove('active'));
+    const footer = panel.querySelector('.sticker-panel-footer');
+    if (footer) {
+      footer.textContent = isMobile() ? '이모지를 터치한 뒤 붙여넣을 곳을 누르세요' : '이모지를 마우스로 끌어서 날짜나 타임라인 입력창에 놓으세요';
+      footer.style.color = '';
+      footer.style.fontWeight = '';
+    }
+  }
+}
+
 /* ══ View Switching ══ */
 function switchView(view) {
   if(state.view==='day' && view!=='day') saveDayFromDOM();
   state.view=view;
+  clearSelectedSticker();
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   $(`view-${view}`).classList.add('active');
   document.querySelectorAll('.bottom-nav-item[data-view], .bottom-nav-fab').forEach(b=>{
@@ -977,6 +1026,7 @@ function applySettings(){
 /* ══ Month/Day Navigation ══ */
 function changeMonth(delta){
   if(state.view==='day') saveDayFromDOM();
+  clearSelectedSticker();
   state.month+=delta;
   if(state.month<0){state.month=11;state.year--;}
   if(state.month>11){state.month=0;state.year++;}
@@ -1056,6 +1106,15 @@ function bindEvents(){
   document.querySelectorAll('.col-switch-btn').forEach(btn=>{
     btn.addEventListener('click',()=>switchActiveCol(btn.dataset.col));
   });
+
+  // Prevent swiping date change when scrolling day goals list
+  const dayGoalsBar = $('day-goals-bar');
+  if (dayGoalsBar) {
+    const preventPropagation = e => e.stopPropagation();
+    dayGoalsBar.addEventListener('touchstart', preventPropagation, {passive:true});
+    dayGoalsBar.addEventListener('touchmove', preventPropagation, {passive:true});
+    dayGoalsBar.addEventListener('touchend', preventPropagation, {passive:true});
+  }
 
   /* Swipe on day view: left = next day, right = prev day */
   const daySection=$('view-day');
@@ -1171,6 +1230,7 @@ function initStickerPanel() {
   const btnOpen = $('btn-stickers');
   const btnOpenHeader = $('btn-stickers-header');
   const btnClose = $('btn-close-stickers');
+  const footer = panel?.querySelector('.sticker-panel-footer');
   
   if (!panel || !btnOpen || !btnClose) return;
   
@@ -1184,6 +1244,32 @@ function initStickerPanel() {
   }
   btnClose.addEventListener('click', () => {
     panel.classList.remove('open');
+    clearSelectedSticker();
+  });
+  
+  panel.addEventListener('click', e => {
+    const item = e.target.closest('.sticker-item');
+    if (item) {
+      const emoji = item.dataset.emoji;
+      
+      if (state.selectedSticker === emoji) {
+        clearSelectedSticker();
+        return;
+      }
+      
+      panel.querySelectorAll('.sticker-item').forEach(el => el.classList.remove('active'));
+      item.classList.add('active');
+      
+      state.selectedSticker = emoji;
+      
+      if (navigator.vibrate) navigator.vibrate(10);
+      
+      if (footer) {
+        footer.innerHTML = `선택됨: <span style="font-size:16px">${emoji}</span> ➡️ 붙여넣을 날짜나 메모창을 누르세요.`;
+        footer.style.color = 'var(--primary)';
+        footer.style.fontWeight = 'bold';
+      }
+    }
   });
   
   panel.addEventListener('dragstart', e => {
